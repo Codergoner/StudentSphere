@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudentSphere</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>StudentSphere</h1>
+    <nav id="navLinks">
+      <a href="login.html">Login</a>
+      <a href="signup.html">Sign Up</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h2>Empowering Students to Trade & Thrive</h2>
+    <p>Buy & sell items. Offer & hire skills. All in one trusted student platform.</p>
+   <a href="login.html"><button class="btn">Explore Now</button></a>
+  </div>
+
+  <section id="items">
+    <h3 class="section-title">Featured Listings & Services</h3>
+    <div class="grid" id="itemGrid">
+      <p>Loading items...</p>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 StudentSphere. Built for students, by students.
+  </footer>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    const nav = document.getElementById("navLinks");
+
+    if (user) {
+      nav.innerHTML = `
+        <span style="font-weight:bold; margin-right:1rem;">Hi, ${user.name}</span>
+        <a href="profile.html">Profile</a>
+        <a href="#" onclick="logout()">Logout</a>
+      `;
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
+
+    async function loadItems() {
+      const res = await fetch("/api/items");
+      const items = await res.json();
+      const grid = document.getElementById("itemGrid");
+      if (!items.length) {
+        grid.innerHTML = "<p>No listings yet.</p>";
+        return;
+      }
+      grid.innerHTML = items.map(item => `
+        <div class="card">
+          <img src="${item.imageUrl}" alt="${item.title}" />
+          <div class="content">
+            <h4>${item.title}</h4>
+            <p>RM ${item.price}</p>
+            <p style="font-size: 0.8rem;">Seller: ${item.sellerName}</p>
+            <button onclick="startChat('${item.sellerEmail}', '${item.sellerName}')" 
+                    class="chat-btn">
+              💬 Message Seller
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function startChat(sellerEmail, sellerName) {
+      localStorage.setItem('chatSellerEmail', sellerEmail);
+      localStorage.setItem('chatSellerName', sellerName);
+      window.location.href = 'chat.html';
+    }
+
+    loadItems();
+  </script>
+</body>
+</html>

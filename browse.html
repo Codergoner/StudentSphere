@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><title>Browse CampusSwap</title></head>
+<body>
+<h2>Browse All Listings</h2>
+<div id="items"></div>
+<script>
+const user = JSON.parse(localStorage.getItem('user'));
+
+fetch('/api/items')
+  .then(res => res.json())
+  .then(items => {
+    document.getElementById('items').innerHTML = items.map(i => `
+      <div style="margin: 20px; padding: 10px; border: 1px solid #ccc;">
+        <h3>${i.title}</h3>
+        <p><strong>Price:</strong> RM ${i.price}</p>
+        <p><strong>Seller:</strong> ${i.sellerName}</p>
+        <img src="${i.imageUrl}" width="150"/><br>
+        ${user ? `<button onclick="messageSeller('${i.sellerEmail}')">💬 Message Seller</button>` : ''}
+      </div>
+    `).join('');
+  });
+
+function messageSeller(email) {
+  window.location.href = `chat.html?with=${email}`;
+}
+</script>
+</body>
+</html>

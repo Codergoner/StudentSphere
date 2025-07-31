@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudentSphere | My Profile</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>StudentSphere</h1>
+    <nav>
+      <a href="index.html">🏠 Home</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <section>
+    <h3 class="section-title">Welcome, <span id="userName"></span></h3>
+
+    <h4>Post a New Listing or Skill</h4>
+    <form id="itemForm" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Title (e.g., 'Java Tutoring')" required />
+      <input type="number" name="price" placeholder="Price (RM)" required />
+      <input type="file" name="image" accept="image/*" required />
+      <button type="submit">Upload</button>
+    </form>
+
+    <h4 style="margin-top: 2rem;">Your Listings</h4>
+    <div class="grid" id="myItems"></div>
+  </section>
+
+  <footer>
+    &copy; 2025 StudentSphere. Manage your listings and gigs here.
+  </footer>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) location.href = "login.html";
+    document.getElementById("userName").textContent = user.name;
+
+    function logout() {
+      localStorage.clear();
+      location.href = "login.html";
+    }
+
+    async function loadMyItems() {
+      const res = await fetch('/api/my-items?email=' + encodeURIComponent(user.email));
+      const items = await res.json();
+      const container = document.getElementById("myItems");
+      if (!items.length) {
+        container.innerHTML = "<p>You haven't listed any items yet.</p>";
+        return;
+      }
+      container.innerHTML = items.map(item => `
+        <div class="card">
+          <img src="${item.imageUrl}" alt="Item Image"/>
+          <div class="content">
+            <h4>${item.title}</h4>
+            <p><strong>RM</strong> ${item.price}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("itemForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      form.append("sellerEmail", user.email);
+      form.append("sellerName", user.name);
+
+      const res = await fetch("/api/items", {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        e.target.reset();
+        loadMyItems();
+      } else {
+        alert("Failed to upload item.");
+      }
+    });
+
+    loadMyItems();
+  </script>
+</body>
+</html>

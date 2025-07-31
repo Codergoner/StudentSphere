@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head><title>CampusSwap Chat</title></head>
+<body>
+<h2>Chat with <span id="partnerName"></span></h2>
+<div id="chatBox" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px;"></div>
+<form id="chatForm">
+  <input id="msg" placeholder="Type a message..." style="width:80%;" required />
+  <button>Send</button>
+</form>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const user = JSON.parse(localStorage.getItem('user'));
+if (!user) location.href = 'login.html';
+const partner = params.get('with');
+document.getElementById('partnerName').textContent = partner;
+
+const socket = io();
+socket.emit('joinRoom', { user1: user.email, user2: partner });
+
+socket.on('chatHistory', history => {
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML = history.map(m => `<p><strong>${m.from === user.email ? 'You' : partner}:</strong> ${m.text}</p>`).join('');
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+socket.on('chatMessage', msg => {
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML += `<p><strong>${msg.from === user.email ? 'You' : partner}:</strong> ${msg.text}</p>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+document.getElementById('chatForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const text = msg.value.trim();
+  if (!text) return;
+  socket.emit('chatMessage', { from: user.email, to: partner, text });
+  msg.value = '';
+});
+</script>
+</body>
+</html>
