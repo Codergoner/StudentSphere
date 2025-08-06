@@ -22,6 +22,11 @@
     <form id="itemForm" enctype="multipart/form-data">
       <input type="text" name="title" placeholder="Title (e.g., 'Java Tutoring')" required />
       <input type="number" name="price" placeholder="Price (RM)" required />
+      <select name="condition" required>
+        <option value="" disabled selected>Condition</option>
+        <option value="First Hand">First Hand</option>
+        <option value="Second Hand">Second Hand</option>
+      </select>
       <input type="file" name="image" accept="image/*" required />
       <button type="submit">Upload</button>
     </form>
@@ -57,6 +62,7 @@
           <img src="${item.imageUrl}" alt="Item Image"/>
           <div class="content">
             <h4>${item.title}</h4>
+            <p><strong>Condition:</strong> ${item.condition || 'N/A'}</p>
             <p><strong>RM</strong> ${item.price}</p>
           </div>
         </div>
