@@ -3,23 +3,51 @@
 <head><title>Browse CampusSwap</title></head>
 <body>
 <h2>Browse All Listings</h2>
+<div class="controls">
+  <input type="text" id="search" placeholder="Search items...">
+  <select id="conditionFilter">
+    <option value="">All Conditions</option>
+    <option value="First Hand">First Hand</option>
+    <option value="Second Hand">Second Hand</option>
+  </select>
+</div>
 <div id="items"></div>
 <script>
 const user = JSON.parse(localStorage.getItem('user'));
+let allItems = [];
 
 fetch('/api/items')
   .then(res => res.json())
   .then(items => {
-    document.getElementById('items').innerHTML = items.map(i => `
-      <div style="margin: 20px; padding: 10px; border: 1px solid #ccc;">
-        <h3>${i.title}</h3>
-        <p><strong>Price:</strong> RM ${i.price}</p>
-        <p><strong>Seller:</strong> ${i.sellerName}</p>
-        <img src="${i.imageUrl}" width="150"/><br>
-        ${user ? `<button onclick="messageSeller('${i.sellerEmail}')">💬 Message Seller</button>` : ''}
-      </div>
-    `).join('');
+    allItems = items;
+    renderItems(items);
   });
+
+function renderItems(items) {
+  document.getElementById('items').innerHTML = items.map(i => `
+    <div style="margin: 20px; padding: 10px; border: 1px solid #ccc;">
+      <h3>${i.title}</h3>
+      <p><strong>Price:</strong> RM ${i.price}</p>
+      <p><strong>Condition:</strong> ${i.condition || 'N/A'}</p>
+      <p><strong>Seller:</strong> ${i.sellerName}</p>
+      <img src="${i.imageUrl}" width="150"/><br>
+      ${user ? `<button onclick="messageSeller('${i.sellerEmail}')">💬 Message Seller</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function filterItems() {
+  const search = document.getElementById('search').value.toLowerCase();
+  const condition = document.getElementById('conditionFilter').value;
+  const filtered = allItems.filter(i =>
+    i.title.toLowerCase().includes(search) &&
+    (condition === '' || i.condition === condition)
+  );
+  renderItems(filtered);
+}
+
+document.getElementById('search').addEventListener('input', filterItems);
+document.getElementById('conditionFilter').addEventListener('change', filterItems);
 
 function messageSeller(email) {
   window.location.href = `chat.html?with=${email}`;

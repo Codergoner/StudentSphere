@@ -24,6 +24,14 @@
 
   <section id="items">
     <h3 class="section-title">Featured Listings & Services</h3>
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search items...">
+      <select id="conditionFilter">
+        <option value="">All Conditions</option>
+        <option value="First Hand">First Hand</option>
+        <option value="Second Hand">Second Hand</option>
+      </select>
+    </div>
     <div class="grid" id="itemGrid">
       <p>Loading items...</p>
     </div>
@@ -50,9 +58,15 @@
       location.reload();
     }
 
+    let allItems = [];
+
     async function loadItems() {
       const res = await fetch("/api/items");
-      const items = await res.json();
+      allItems = await res.json();
+      renderItems(allItems);
+    }
+
+    function renderItems(items) {
       const grid = document.getElementById("itemGrid");
       if (!items.length) {
         grid.innerHTML = "<p>No listings yet.</p>";
@@ -64,8 +78,9 @@
           <div class="content">
             <h4>${item.title}</h4>
             <p>RM ${item.price}</p>
+            <p>Condition: ${item.condition || 'N/A'}</p>
             <p style="font-size: 0.8rem;">Seller: ${item.sellerName}</p>
-            <button onclick="startChat('${item.sellerEmail}', '${item.sellerName}')" 
+            <button onclick="startChat('${item.sellerEmail}', '${item.sellerName}')"
                     class="chat-btn">
               💬 Message Seller
             </button>
@@ -73,6 +88,19 @@
         </div>
       `).join("");
     }
+
+    function filterItems() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const condition = document.getElementById("conditionFilter").value;
+      const filtered = allItems.filter(item =>
+        item.title.toLowerCase().includes(search) &&
+        (condition === "" || item.condition === condition)
+      );
+      renderItems(filtered);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filterItems);
+    document.getElementById("conditionFilter").addEventListener("change", filterItems);
 
     function startChat(sellerEmail, sellerName) {
       localStorage.setItem('chatSellerEmail', sellerEmail);
