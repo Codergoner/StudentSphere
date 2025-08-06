@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudentSphere | Careers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>StudentSphere</h1>
+    <nav id="navLinks">
+      <a href="login.html">Login</a>
+      <a href="signup.html">Sign Up</a>
+      <a href="careers.html">Careers</a>
+    </nav>
+  </header>
+
+  <section>
+    <h3 class="section-title">Career & Opportunities</h3>
+    <div class="grid" id="jobGrid"></div>
+  </section>
+
+  <footer>
+    &copy; 2025 StudentSphere. Discover opportunities from our sponsors.
+  </footer>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    const nav = document.getElementById("navLinks");
+
+    if (user) {
+      nav.innerHTML = `
+        <span style="font-weight:bold; margin-right:1rem;">Hi, ${user.name}</span>
+        <a href="profile.html">Profile</a>
+        <a href="careers.html">Careers</a>
+        <a href="#" onclick="logout()">Logout</a>
+      `;
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
+
+    const jobs = [
+      {
+        title: 'Software Engineer Intern',
+        company: 'TechNova',
+        type: 'Internship',
+        location: 'Remote',
+        applyUrl: '#'
+      },
+      {
+        title: 'Marketing Specialist',
+        company: 'MarketCorp',
+        type: 'Full Time',
+        location: 'Kuala Lumpur',
+        applyUrl: '#'
+      }
+    ];
+
+    const grid = document.getElementById('jobGrid');
+    grid.innerHTML = jobs.map(job => `
+      <div class="card">
+        <div class="content">
+          <h4>${job.title}</h4>
+          <p><strong>${job.company}</strong></p>
+          <p><strong>Type:</strong> ${job.type}</p>
+          <p><strong>Location:</strong> ${job.location}</p>
+          <a class="btn" href="${job.applyUrl}" target="_blank" rel="noopener">Apply Now</a>
+        </div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>
