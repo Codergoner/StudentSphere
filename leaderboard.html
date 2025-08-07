@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Top Sellers</h1>
+  </header>
+  <main>
+    <table id="board">
+      <thead>
+        <tr><th>Position</th><th>Seller</th><th>Sales</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+  <script>
+    async function loadBoard() {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      const tbody = document.querySelector('#board tbody');
+      tbody.innerHTML = '';
+      data.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${idx + 1}</td><td>${row.seller}</td><td>${row.sales}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    loadBoard();
+  </script>
+</body>
+</html>
